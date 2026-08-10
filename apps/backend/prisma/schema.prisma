@@ -1,0 +1,135 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum EntryType {
+  PROBLEM
+  SOLUTION
+  GUIDE
+  ARCHITECTURE
+  CONFIGURATION
+  REFERENCE
+}
+
+enum EntryStatus {
+  DRAFT
+  VERIFIED
+  PUBLISHED
+  ARCHIVED
+}
+
+enum VerificationStatus {
+  UNVERIFIED
+  OBSERVED
+  TESTED
+  CONFIRMED
+}
+
+model KnowledgeEntry {
+  id                 String             @id @default(uuid())
+  title              String
+  summary            String?
+  content            String
+  problem            String?
+  cause              String?
+  solution           String?
+  technicalDetails   String?
+  entryType          EntryType          @default(PROBLEM)
+  status             EntryStatus        @default(DRAFT)
+  verificationStatus VerificationStatus @default(UNVERIFIED)
+
+  categoryId String?
+  category   Category? @relation(fields: [categoryId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  systems      KnowledgeEntrySystem[]
+  components   KnowledgeEntryComponent[]
+  environments KnowledgeEntryEnvironment[]
+  tags         KnowledgeEntryTag[]
+}
+
+model Category {
+  id          String           @id @default(uuid())
+  name        String           @unique
+  description String?
+  entries     KnowledgeEntry[]
+}
+
+model System {
+  id          String                 @id @default(uuid())
+  name        String                 @unique
+  description String?
+  type        String?
+  status      String?
+  entries     KnowledgeEntrySystem[]
+}
+
+model Component {
+  id          String                    @id @default(uuid())
+  name        String                    @unique
+  description String?
+  type        String?
+  manufacturer String?
+  model       String?
+  entries     KnowledgeEntryComponent[]
+}
+
+model Environment {
+  id          String                      @id @default(uuid())
+  name        String                      @unique
+  description String?
+  entries     KnowledgeEntryEnvironment[]
+}
+
+model Tag {
+  id      String              @id @default(uuid())
+  name    String              @unique
+  entries KnowledgeEntryTag[]
+}
+
+model KnowledgeEntrySystem {
+  entryId  String
+  systemId String
+
+  entry  KnowledgeEntry @relation(fields: [entryId], references: [id], onDelete: Cascade)
+  system System         @relation(fields: [systemId], references: [id], onDelete: Cascade)
+
+  @@id([entryId, systemId])
+}
+
+model KnowledgeEntryComponent {
+  entryId     String
+  componentId String
+
+  entry     KnowledgeEntry @relation(fields: [entryId], references: [id], onDelete: Cascade)
+  component Component      @relation(fields: [componentId], references: [id], onDelete: Cascade)
+
+  @@id([entryId, componentId])
+}
+
+model KnowledgeEntryEnvironment {
+  entryId       String
+  environmentId String
+
+  entry       KnowledgeEntry @relation(fields: [entryId], references: [id], onDelete: Cascade)
+  environment Environment   @relation(fields: [environmentId], references: [id], onDelete: Cascade)
+
+  @@id([entryId, environmentId])
+}
+
+model KnowledgeEntryTag {
+  entryId String
+  tagId   String
+
+  entry KnowledgeEntry @relation(fields: [entryId], references: [id], onDelete: Cascade)
+  tag   Tag            @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([entryId, tagId])
+}
