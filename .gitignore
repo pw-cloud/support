@@ -143,3 +143,9 @@ vite.config.ts.timestamp-*
 .vite/
 
 /apps/backend/generated/prisma
+
+# Local AI agent / IDE skills
+.agents/
+.claude/
+.windsurf/
+skills-lock.json
