@@ -17,6 +17,9 @@
     "test": "npm run test --workspaces --if-present",
     "test:backend": "npm run test --workspace=backend",
     "lint": "npm run lint --workspaces"
+  },
+  "dependencies": {
+    "@prisma/adapter-pg": "^7.9.1",
+    "pg": "^8.23.0"
   }
 }
-

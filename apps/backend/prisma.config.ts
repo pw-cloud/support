@@ -6,6 +6,6 @@ export default defineConfig({
     path: "prisma/migrations",
   },
   datasource: {
-    url: "postgres://postgres:postgres@localhost:51214/mydb?sslmode=disable",
+    url: "postgres://postgres:postgres@127.0.0.1:51214/mydb?sslmode=disable",
   },
 });
