@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
@@ -13,6 +13,20 @@ export class KnowledgeService {
     });
   }
 
+  async findOne(id: string) {
+    const entry = await this.prisma.knowledgeEntry.findUnique({
+      where: {
+        id,
+      },
+    });
+
+    if (!entry) {
+      throw new NotFoundException('Knowledge entry not found');
+    }
+
+    return entry;
+  }
+
   async create(data: {
     title: string;
     content: string;
@@ -24,4 +38,19 @@ export class KnowledgeService {
       },
     });
   }
-}
+async update(
+  id: string,
+  data: {
+    title?: string;
+    content?: string;
+  },
+) {
+  await this.findOne(id);
+
+  return this.prisma.knowledgeEntry.update({
+    where: {
+      id,
+    },
+    data,
+  });
+}}
