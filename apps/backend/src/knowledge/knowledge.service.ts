@@ -1,5 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { CreateKnowledgeDto } from './dto/create-knowledge.dto';
+import { UpdateKnowledgeDto } from './dto/update-knowledge.dto';
 
 @Injectable()
 export class KnowledgeService {
@@ -27,30 +29,44 @@ export class KnowledgeService {
     return entry;
   }
 
-  async create(data: {
-    title: string;
-    content: string;
-  }) {
+  async create(data: CreateKnowledgeDto) {
     return this.prisma.knowledgeEntry.create({
       data: {
         title: data.title,
+        summary: data.summary,
         content: data.content,
+        problem: data.problem,
+        cause: data.cause,
+        solution: data.solution,
+        technicalDetails: data.technicalDetails,
+        entryType: data.entryType,
+        status: data.status,
+        verificationStatus: data.verificationStatus,
+        categoryId: data.categoryId,
       },
     });
   }
-async update(
-  id: string,
-  data: {
-    title?: string;
-    content?: string;
-  },
-) {
-  await this.findOne(id);
 
-  return this.prisma.knowledgeEntry.update({
-    where: {
-      id,
-    },
-    data,
-  });
-}}
+  async update(id: string, data: UpdateKnowledgeDto) {
+    await this.findOne(id);
+
+    return this.prisma.knowledgeEntry.update({
+      where: {
+        id,
+      },
+      data: {
+        title: data.title,
+        summary: data.summary,
+        content: data.content,
+        problem: data.problem,
+        cause: data.cause,
+        solution: data.solution,
+        technicalDetails: data.technicalDetails,
+        entryType: data.entryType,
+        status: data.status,
+        verificationStatus: data.verificationStatus,
+        categoryId: data.categoryId,
+      },
+    });
+  }
+}
