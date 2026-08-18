@@ -69,4 +69,13 @@ export class KnowledgeService {
       },
     });
   }
+    async remove(id: string) {
+    await this.findOne(id);
+
+    return this.prisma.knowledgeEntry.delete({
+      where: {
+        id,
+      },
+    });
+  }
 }
