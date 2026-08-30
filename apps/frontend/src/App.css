@@ -116,3 +116,173 @@ h1 {
 .status-dot.pending {
   background: #f59e0b;
 }
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.toolbar .description {
+  margin: 0;
+}
+
+.toolbar button,
+.card > button {
+  padding: 0.65rem 1rem;
+  border: 0;
+  border-radius: 0.45rem;
+  background: #4f46e5;
+  color: white;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.knowledge-form select {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0.65rem 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.45rem;
+  background: white;
+  font: inherit;
+}
+
+.form-actions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.form-actions button[type="button"] {
+  background: #6b7280;
+}
+
+.empty-state {
+  padding: 2rem 1rem;
+  text-align: center;
+  border: 1px dashed #d1d5db;
+  border-radius: 0.8rem;
+  background: #f9fafb;
+}
+
+.empty-state h2 {
+  margin: 0 0 0.5rem;
+  color: #111827;
+}
+
+.empty-state p {
+  margin: 0;
+  color: #6b7280;
+}
+
+.knowledge-list {
+  display: grid;
+  gap: 0.8rem;
+}
+
+.knowledge-entry {
+  padding: 1rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.8rem;
+  background: #fff;
+  cursor: pointer;
+  transition: box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+.knowledge-entry:hover {
+  border-color: #c7d2fe;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.08);
+}
+
+.knowledge-entry h2 {
+  margin: 0 0 0.45rem;
+  font-size: 1.05rem;
+  color: #111827;
+}
+
+.knowledge-entry p {
+  margin: 0 0 0.65rem;
+  color: #4b5563;
+  line-height: 1.5;
+}
+
+.knowledge-entry small {
+  color: #6b7280;
+}
+
+.entry-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 1rem 0 1.5rem;
+}
+
+.entry-meta span {
+  padding: 0.35rem 0.6rem;
+  border-radius: 999px;
+  background: #f3f4f6;
+  color: #374151;
+  font-size: 0.85rem;
+}
+
+.detail-section {
+  margin-top: 1.5rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid #e5e7eb;
+}
+
+.detail-section h2 {
+  margin: 0 0 0.6rem;
+  font-size: 1.05rem;
+  color: #111827;
+}
+
+.detail-section p {
+  margin: 0;
+  color: #374151;
+  line-height: 1.65;
+}
+
+.preserve-whitespace {
+  white-space: pre-wrap;
+}
+
+.entry-dates {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin-top: 2rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e5e7eb;
+  color: #6b7280;
+}
+
+@media (max-width: 640px) {
+  .app-shell {
+    padding: 1rem;
+  }
+
+  .card {
+    padding: 1.25rem;
+  }
+
+  .toolbar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .toolbar button {
+    width: 100%;
+  }
+
+  .form-actions {
+    flex-direction: column;
+  }
+
+  .form-actions button {
+    width: 100%;
+  }
+}
