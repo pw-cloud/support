@@ -48,6 +48,7 @@ const emptyForm: KnowledgeForm = {
 function App() {
   const [entries, setEntries] = useState<KnowledgeEntry[]>([])
   const [form, setForm] = useState<KnowledgeForm>(emptyForm)
+  const [selectedEntry, setSelectedEntry] = useState<KnowledgeEntry | null>(null)
   const [showForm, setShowForm] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
@@ -76,10 +77,7 @@ function App() {
     void loadEntries()
   }, [])
 
-  function updateField(
-    field: keyof KnowledgeForm,
-    value: string,
-  ) {
+  function updateField(field: keyof KnowledgeForm, value: string) {
     setForm((current) => ({
       ...current,
       [field]: value,
@@ -102,7 +100,9 @@ function App() {
 
       if (!response.ok) {
         const message = await response.text()
-        throw new Error(message || 'Knowledge-Eintrag konnte nicht gespeichert werden')
+        throw new Error(
+          message || 'Knowledge-Eintrag konnte nicht gespeichert werden',
+        )
       }
 
       setForm(emptyForm)
@@ -113,6 +113,96 @@ function App() {
     } finally {
       setSaving(false)
     }
+  }
+
+  function formatDate(value: string) {
+    return new Date(value).toLocaleString('de-DE')
+  }
+
+  if (selectedEntry) {
+    return (
+      <main className="app-shell">
+        <section className="card">
+          <button
+            type="button"
+            onClick={() => setSelectedEntry(null)}
+          >
+            ← Zurück zur Übersicht
+          </button>
+
+          <p className="eyebrow">Knowledge-Eintrag</p>
+
+          <h1>{selectedEntry.title}</h1>
+
+          <div className="entry-meta">
+            <span>Typ: {selectedEntry.entryType}</span>
+            <span>Status: {selectedEntry.status}</span>
+            <span>
+              Verifikation: {selectedEntry.verificationStatus}
+            </span>
+          </div>
+
+          {selectedEntry.summary && (
+            <section className="detail-section">
+              <h2>Zusammenfassung</h2>
+              <p>{selectedEntry.summary}</p>
+            </section>
+          )}
+
+          <section className="detail-section">
+            <h2>Inhalt</h2>
+            <p className="preserve-whitespace">
+              {selectedEntry.content}
+            </p>
+          </section>
+
+          {selectedEntry.problem && (
+            <section className="detail-section">
+              <h2>Problem</h2>
+              <p className="preserve-whitespace">
+                {selectedEntry.problem}
+              </p>
+            </section>
+          )}
+
+          {selectedEntry.cause && (
+            <section className="detail-section">
+              <h2>Ursache</h2>
+              <p className="preserve-whitespace">
+                {selectedEntry.cause}
+              </p>
+            </section>
+          )}
+
+          {selectedEntry.solution && (
+            <section className="detail-section">
+              <h2>Lösung</h2>
+              <p className="preserve-whitespace">
+                {selectedEntry.solution}
+              </p>
+            </section>
+          )}
+
+          {selectedEntry.technicalDetails && (
+            <section className="detail-section">
+              <h2>Technische Details</h2>
+              <p className="preserve-whitespace">
+                {selectedEntry.technicalDetails}
+              </p>
+            </section>
+          )}
+
+          <div className="entry-dates">
+            <small>
+              Erstellt: {formatDate(selectedEntry.createdAt)}
+            </small>
+            <small>
+              Zuletzt geändert: {formatDate(selectedEntry.updatedAt)}
+            </small>
+          </div>
+        </section>
+      </main>
+    )
   }
 
   return (
@@ -309,6 +399,7 @@ function App() {
               <article
                 className="knowledge-entry"
                 key={entry.id}
+                onClick={() => setSelectedEntry(entry)}
               >
                 <h2>{entry.title}</h2>
 
