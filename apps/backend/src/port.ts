@@ -1,6 +1,9 @@
 import { createServer } from 'net';
 
-export async function getAvailablePort(startPort: number, maxAttempts = 10): Promise<number> {
+export async function getAvailablePort(
+  startPort: number,
+  maxAttempts = 10,
+): Promise<number> {
   for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
     const port = startPort + attempt;
     const server = createServer();

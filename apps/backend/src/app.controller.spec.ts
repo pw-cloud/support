@@ -1,7 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { PrismaService } from './prisma/prisma.service';
 
 describe('AppController', () => {
   let appController: AppController;
@@ -9,25 +8,27 @@ describe('AppController', () => {
   beforeEach(async () => {
     const app: TestingModule = await Test.createTestingModule({
       controllers: [AppController],
-      providers: [
-        AppService,
-        {
-          provide: PrismaService,
-          useValue: {
-            knowledgeEntry: {
-              count: jest.fn().mockResolvedValue(0),
-            },
-          },
-        },
-      ],
+      providers: [AppService],
     }).compile();
 
     appController = app.get<AppController>(AppController);
   });
 
   describe('root', () => {
-    it('should return "Hello World!"', () => {
-      expect(appController.getHello()).toBe('Hello World!');
+    it('should return the welcome message', () => {
+      expect(appController.getHello()).toEqual({
+        message: 'Support API is running',
+      });
+    });
+  });
+
+  describe('health', () => {
+    it('should return a healthy status with a timestamp', () => {
+      const health = appController.getHealth();
+
+      expect(health.status).toBe('ok');
+      expect(typeof health.timestamp).toBe('string');
+      expect(new Date(health.timestamp).getTime()).not.toBeNaN();
     });
   });
 });

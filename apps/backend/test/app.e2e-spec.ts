@@ -20,14 +20,20 @@ describe('AppController (e2e)', () => {
     return request(app.getHttpServer())
       .get('/')
       .expect(200)
-      .expect('Hello World!');
+      .expect({ message: 'Support API is running' });
   });
 
   it('/health (GET)', () => {
     return request(app.getHttpServer())
       .get('/health')
       .expect(200)
-      .expect({ status: 'ok' });
+      .expect(({ body }) => {
+        expect(body.status).toBe('ok');
+        expect(typeof body.timestamp).toBe('string');
+
+        const timestamp = new Date(body.timestamp).getTime();
+        expect(timestamp).not.toBeNaN();
+      });
   });
 
   afterEach(async () => {

@@ -23,7 +23,9 @@ describe('getAvailablePort', () => {
     occupiedServer = createServer();
 
     await new Promise<void>((resolve, reject) => {
-      occupiedServer!.once('error', reject).listen(0, '127.0.0.1', () => resolve());
+      occupiedServer!
+        .once('error', reject)
+        .listen(0, '127.0.0.1', () => resolve());
     });
 
     const occupiedPort = (occupiedServer.address() as AddressInfo).port;
