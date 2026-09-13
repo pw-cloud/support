@@ -30,19 +30,28 @@ export class KnowledgeService {
   }
 
   async create(data: CreateKnowledgeDto) {
+    const title =
+      (data.title ??
+        [data.category, data.manufacturer, data.model]
+          .filter(Boolean)
+          .join(' - ')) || 'Neues Knowledge-Element';
+
     return this.prisma.knowledgeEntry.create({
       data: {
-        title: data.title,
-        summary: data.summary,
-        content: data.content,
-        problem: data.problem,
-        cause: data.cause,
-        solution: data.solution,
-        technicalDetails: data.technicalDetails,
-        entryType: data.entryType,
-        status: data.status,
-        verificationStatus: data.verificationStatus,
-        categoryId: data.categoryId,
+        title,
+        summary: data.summary ?? null,
+        content: data.content ?? '',
+        category: data.category as any,
+        manufacturer: data.manufacturer ?? null,
+        model: data.model ?? null,
+        problem: data.problem ?? null,
+        cause: data.cause ?? null,
+        solution: data.solution ?? null,
+        technicalDetails: data.technicalDetails ?? null,
+        entryType: data.entryType as any,
+        status: data.status as any,
+        verificationStatus: data.verificationStatus as any,
+        categoryId: data.categoryId ?? null,
       },
     });
   }
@@ -50,22 +59,31 @@ export class KnowledgeService {
   async update(id: string, data: UpdateKnowledgeDto) {
     await this.findOne(id);
 
+    const title =
+      (data.title ??
+        [data.category, data.manufacturer, data.model]
+          .filter(Boolean)
+          .join(' - ')) || 'Neues Knowledge-Element';
+
     return this.prisma.knowledgeEntry.update({
       where: {
         id,
       },
       data: {
-        title: data.title,
-        summary: data.summary,
-        content: data.content,
-        problem: data.problem,
-        cause: data.cause,
-        solution: data.solution,
-        technicalDetails: data.technicalDetails,
-        entryType: data.entryType,
-        status: data.status,
-        verificationStatus: data.verificationStatus,
-        categoryId: data.categoryId,
+        title,
+        summary: data.summary ?? null,
+        content: data.content ?? '',
+        category: data.category as any,
+        manufacturer: data.manufacturer ?? null,
+        model: data.model ?? null,
+        problem: data.problem ?? null,
+        cause: data.cause ?? null,
+        solution: data.solution ?? null,
+        technicalDetails: data.technicalDetails ?? null,
+        entryType: data.entryType as any,
+        status: data.status as any,
+        verificationStatus: data.verificationStatus as any,
+        categoryId: data.categoryId ?? null,
       },
     });
   }

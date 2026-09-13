@@ -16,9 +16,8 @@ enum EntryType {
 }
 
 enum EntryStatus {
-  DRAFT = 'DRAFT',
-  VERIFIED = 'VERIFIED',
-  PUBLISHED = 'PUBLISHED',
+  NEW = 'NEW',
+  CONFIRMED = 'CONFIRMED',
   ARCHIVED = 'ARCHIVED',
 }
 
@@ -29,20 +28,39 @@ enum VerificationStatus {
   CONFIRMED = 'CONFIRMED',
 }
 
+enum KnowledgeCategory {
+  PC = 'PC',
+  PRINTER = 'PRINTER',
+  MDE = 'MDE',
+  NETWORK = 'NETWORK',
+  OTHER = 'OTHER',
+}
+
 export class CreateKnowledgeDto {
   @IsString()
-  @IsNotEmpty()
+  @IsOptional()
   @MinLength(3)
-  title: string;
+  title?: string;
 
   @IsString()
   @IsOptional()
   summary?: string;
 
   @IsString()
-  @IsNotEmpty()
-  @MinLength(3)
-  content: string;
+  @IsOptional()
+  content?: string;
+
+  @IsEnum(KnowledgeCategory)
+  @IsOptional()
+  category?: KnowledgeCategory;
+
+  @IsString()
+  @IsOptional()
+  manufacturer?: string;
+
+  @IsString()
+  @IsOptional()
+  model?: string;
 
   @IsString()
   @IsOptional()

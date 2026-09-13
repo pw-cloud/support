@@ -88,6 +88,23 @@ h1 {
   line-height: 1.6;
 }
 
+.search-field {
+  display: grid;
+  gap: 0.4rem;
+  margin: 0 0 1.25rem;
+  color: #374151;
+  font-weight: 600;
+}
+
+.search-field input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0.7rem 0.8rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.5rem;
+  font: inherit;
+}
+
 .status-box {
   display: flex;
   align-items: center;
@@ -226,6 +243,14 @@ h1 {
   background: #f3f4f6;
   color: #374151;
   font-size: 0.85rem;
+}
+
+.detail-actions {
+  margin-bottom: 1.5rem;
+}
+
+.danger-button {
+  background: #dc2626 !important;
 }
 
 .detail-section {

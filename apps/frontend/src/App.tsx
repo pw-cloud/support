@@ -4,9 +4,12 @@ import './App.css'
 
 type KnowledgeEntry = {
   id: string
-  title: string
+  title: string | null
   summary: string | null
-  content: string
+  content: string | null
+  category: string | null
+  manufacturer: string | null
+  model: string | null
   problem: string | null
   cause: string | null
   solution: string | null
@@ -20,29 +23,23 @@ type KnowledgeEntry = {
 }
 
 type KnowledgeForm = {
-  title: string
-  summary: string
-  content: string
+  category: string
+  manufacturer: string
+  model: string
   problem: string
   cause: string
   solution: string
-  technicalDetails: string
-  entryType: string
   status: string
-  verificationStatus: string
 }
 
 const emptyForm: KnowledgeForm = {
-  title: '',
-  summary: '',
-  content: '',
+  category: 'PC',
+  manufacturer: '',
+  model: '',
   problem: '',
   cause: '',
   solution: '',
-  technicalDetails: '',
-  entryType: 'PROBLEM',
-  status: 'DRAFT',
-  verificationStatus: 'UNVERIFIED',
+  status: 'NEW',
 }
 
 function App() {
@@ -53,6 +50,27 @@ function App() {
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
+  const [searchTerm, setSearchTerm] = useState('')
+
+  const filteredEntries = entries.filter((entry) => {
+    const query = searchTerm.trim().toLowerCase()
+
+    if (!query) {
+      return true
+    }
+
+    return [
+      entry.title,
+      entry.summary,
+      entry.content,
+      entry.problem,
+      entry.cause,
+      entry.solution,
+      entry.technicalDetails,
+    ]
+      .filter(Boolean)
+      .some((value) => value!.toLowerCase().includes(query))
+  })
 
   async function loadEntries() {
     try {
@@ -90,12 +108,18 @@ function App() {
     setError(null)
 
     try {
+      const payload = {
+        ...form,
+        title: `${form.category} - ${form.manufacturer || 'Hersteller'} ${form.model || 'Modell'}`.trim(),
+        content: `${form.problem}\n\nUrsache:\n${form.cause || 'Nicht angegeben'}\n\nLösung:\n${form.solution || 'Nicht angegeben'}`,
+      }
+
       const response = await fetch('/api/knowledge', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(form),
+        body: JSON.stringify(payload),
       })
 
       if (!response.ok) {
@@ -112,6 +136,36 @@ function App() {
       setError(err instanceof Error ? err.message : 'Unbekannter Fehler')
     } finally {
       setSaving(false)
+    }
+  }
+
+  async function handleDelete(id: string) {
+    const confirmed = window.confirm(
+      'Möchtest du diesen Knowledge-Eintrag wirklich löschen?',
+    )
+
+    if (!confirmed) {
+      return
+    }
+
+    try {
+      setError(null)
+      const response = await fetch(`/api/knowledge/${id}`, {
+        method: 'DELETE',
+      })
+
+      if (!response.ok) {
+        const message = await response.text()
+        throw new Error(message || 'Eintrag konnte nicht gelöscht werden')
+      }
+
+      if (selectedEntry?.id === id) {
+        setSelectedEntry(null)
+      }
+
+      await loadEntries()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Unbekannter Fehler')
     }
   }
 
@@ -132,35 +186,36 @@ function App() {
 
           <p className="eyebrow">Knowledge-Eintrag</p>
 
-          <h1>{selectedEntry.title}</h1>
+          <h1>{selectedEntry.title ?? `${selectedEntry.category ?? 'Eintrag'} ${selectedEntry.manufacturer ?? ''} ${selectedEntry.model ?? ''}`.trim()}</h1>
 
           <div className="entry-meta">
-            <span>Typ: {selectedEntry.entryType}</span>
+            <span>Kategorie: {selectedEntry.category ?? 'Sonstige'}</span>
+            <span>Hersteller/Modell: {selectedEntry.manufacturer ?? '—'} / {selectedEntry.model ?? '—'}</span>
             <span>Status: {selectedEntry.status}</span>
-            <span>
-              Verifikation: {selectedEntry.verificationStatus}
-            </span>
           </div>
 
-          {selectedEntry.summary && (
-            <section className="detail-section">
-              <h2>Zusammenfassung</h2>
-              <p>{selectedEntry.summary}</p>
-            </section>
-          )}
+          <div className="detail-actions">
+            <button
+              type="button"
+              className="danger-button"
+              onClick={() => handleDelete(selectedEntry.id)}
+            >
+              Eintrag löschen
+            </button>
+          </div>
 
           <section className="detail-section">
-            <h2>Inhalt</h2>
+            <h2>Problem Beschreibung</h2>
             <p className="preserve-whitespace">
-              {selectedEntry.content}
+              {selectedEntry.problem ?? selectedEntry.content ?? 'Keine Problem-Beschreibung hinterlegt.'}
             </p>
           </section>
 
-          {selectedEntry.problem && (
+          {selectedEntry.cause && (
             <section className="detail-section">
-              <h2>Problem</h2>
+              <h2>Ursache</h2>
               <p className="preserve-whitespace">
-                {selectedEntry.problem}
+                {selectedEntry.cause}
               </p>
             </section>
           )}
@@ -180,6 +235,13 @@ function App() {
               <p className="preserve-whitespace">
                 {selectedEntry.solution}
               </p>
+            </section>
+          )}
+
+          {!selectedEntry.solution && !selectedEntry.cause && (
+            <section className="detail-section">
+              <h2>Lösung</h2>
+              <p>Keine Lösung hinterlegt.</p>
             </section>
           )}
 
@@ -214,7 +276,7 @@ function App() {
 
         <div className="toolbar">
           <p className="description">
-            {entries.length} Knowledge-Einträge aus dem Backend.
+            {filteredEntries.length} von {entries.length} Einträgen sichtbar.
           </p>
 
           <button
@@ -229,6 +291,16 @@ function App() {
           </button>
         </div>
 
+        <label className="search-field">
+          <span>Suche</span>
+          <input
+            type="search"
+            value={searchTerm}
+            onChange={(event) => setSearchTerm(event.target.value)}
+            placeholder="Titel, Problem, Lösung, Inhalt..."
+          />
+        </label>
+
         {error && (
           <div className="status-box">
             <strong>Fehler:</strong> {error}
@@ -240,48 +312,52 @@ function App() {
             <h2>Neuer Knowledge-Eintrag</h2>
 
             <label>
-              Titel *
+              Kategorie
+              <select
+                value={form.category}
+                onChange={(event) =>
+                  updateField('category', event.target.value)
+                }
+              >
+                <option value="PC">PC</option>
+                <option value="PRINTER">Drucker</option>
+                <option value="MDE">MDE</option>
+                <option value="NETWORK">Netzwerk</option>
+                <option value="OTHER">Sonstige</option>
+              </select>
+            </label>
+
+            <label>
+              Hersteller
               <input
-                value={form.title}
+                value={form.manufacturer}
                 onChange={(event) =>
-                  updateField('title', event.target.value)
+                  updateField('manufacturer', event.target.value)
                 }
-                required
-                minLength={3}
+                placeholder="z. B. Lenovo"
               />
             </label>
 
             <label>
-              Zusammenfassung
+              Modell
               <input
-                value={form.summary}
+                value={form.model}
                 onChange={(event) =>
-                  updateField('summary', event.target.value)
+                  updateField('model', event.target.value)
                 }
+                placeholder="z. B. ThinkPad T14"
               />
             </label>
 
             <label>
-              Inhalt *
-              <textarea
-                value={form.content}
-                onChange={(event) =>
-                  updateField('content', event.target.value)
-                }
-                required
-                minLength={3}
-                rows={5}
-              />
-            </label>
-
-            <label>
-              Problem
+              Problem Beschreibung
               <textarea
                 value={form.problem}
                 onChange={(event) =>
                   updateField('problem', event.target.value)
                 }
-                rows={3}
+                required
+                rows={4}
               />
             </label>
 
@@ -308,34 +384,6 @@ function App() {
             </label>
 
             <label>
-              Technische Details
-              <textarea
-                value={form.technicalDetails}
-                onChange={(event) =>
-                  updateField('technicalDetails', event.target.value)
-                }
-                rows={3}
-              />
-            </label>
-
-            <label>
-              Typ
-              <select
-                value={form.entryType}
-                onChange={(event) =>
-                  updateField('entryType', event.target.value)
-                }
-              >
-                <option value="PROBLEM">Problem</option>
-                <option value="SOLUTION">Lösung</option>
-                <option value="GUIDE">Anleitung</option>
-                <option value="ARCHITECTURE">Architektur</option>
-                <option value="CONFIGURATION">Konfiguration</option>
-                <option value="REFERENCE">Referenz</option>
-              </select>
-            </label>
-
-            <label>
               Status
               <select
                 value={form.status}
@@ -343,28 +391,9 @@ function App() {
                   updateField('status', event.target.value)
                 }
               >
-                <option value="DRAFT">Entwurf</option>
-                <option value="VERIFIED">Verifiziert</option>
-                <option value="PUBLISHED">Veröffentlicht</option>
-                <option value="ARCHIVED">Archiviert</option>
-              </select>
-            </label>
-
-            <label>
-              Verifikation
-              <select
-                value={form.verificationStatus}
-                onChange={(event) =>
-                  updateField(
-                    'verificationStatus',
-                    event.target.value,
-                  )
-                }
-              >
-                <option value="UNVERIFIED">Unverifiziert</option>
-                <option value="OBSERVED">Beobachtet</option>
-                <option value="TESTED">Getestet</option>
+                <option value="NEW">Neu</option>
                 <option value="CONFIRMED">Bestätigt</option>
+                <option value="ARCHIVED">Archiviert</option>
               </select>
             </label>
 
@@ -386,28 +415,34 @@ function App() {
 
         {loading ? (
           <p>Knowledge-Einträge werden geladen...</p>
-        ) : entries.length === 0 ? (
+        ) : filteredEntries.length === 0 ? (
           <div className="empty-state">
-            <h2>Noch keine Knowledge-Einträge</h2>
+            <h2>Keine passenden Einträge</h2>
             <p>
-              Die Wissensbank ist leer. Lege den ersten Eintrag an.
+              {entries.length === 0
+                ? 'Die Wissensbank ist leer. Lege den ersten Eintrag an.'
+                : 'Für diesen Suchbegriff wurden keine Einträge gefunden.'}
             </p>
           </div>
         ) : (
           <div className="knowledge-list">
-            {entries.map((entry) => (
+            {filteredEntries.map((entry) => (
               <article
                 className="knowledge-entry"
                 key={entry.id}
                 onClick={() => setSelectedEntry(entry)}
               >
-                <h2>{entry.title}</h2>
+                <h2>
+                  {entry.title ??
+                    `${entry.category ?? 'Sonstige'} - ${entry.manufacturer ?? 'Hersteller'} ${entry.model ?? ''}`.trim()}
+                </h2>
 
-                {entry.summary && <p>{entry.summary}</p>}
+                <p>
+                  {entry.problem ?? 'Keine Problem-Beschreibung hinterlegt.'}
+                </p>
 
                 <small>
-                  Typ: {entry.entryType} · Status: {entry.status} ·
-                  Verifikation: {entry.verificationStatus}
+                  Kategorie: {entry.category ?? 'Sonstige'} · Hersteller/Modell: {entry.manufacturer ?? '—'} / {entry.model ?? '—'} · Status: {entry.status}
                 </small>
               </article>
             ))}
