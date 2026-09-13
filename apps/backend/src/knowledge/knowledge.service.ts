@@ -48,9 +48,9 @@ export class KnowledgeService {
         cause: data.cause ?? null,
         solution: data.solution ?? null,
         technicalDetails: data.technicalDetails ?? null,
-        entryType: data.entryType as any,
-        status: data.status as any,
-        verificationStatus: data.verificationStatus as any,
+        entryType: (data.entryType ?? 'PROBLEM') as any,
+        status: (data.status ?? 'NEW') as any,
+        verificationStatus: (data.verificationStatus ?? 'UNVERIFIED') as any,
         categoryId: data.categoryId ?? null,
       },
     });
